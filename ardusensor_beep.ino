@@ -8,24 +8,15 @@
 #define TRIGGER_PIN     9
 #define ECHO_PIN        10
 
-#define BEEP_RANGE      33 // in cm
-
-int duration;
-
 /**
- * This function is the entry point for the arduino program and it sets the
- * modes for the pins of external components
+ * This function takes inputs for RGB values in the form of three
+ * integers to light up the LED with color
  */
-void setup()
+void setcolor(int R, int G, int B)
 {
-    Serial.begin(19200);
-    pinMode(RED_PIN, OUTPUT);
-    pinMode(GREEN_PIN, OUTPUT);
-    pinMode(BLUE_PIN, OUTPUT);
-
-    pinMode(BUZZER_PIN, OUTPUT);
-    pinMode(TRIGGER_PIN, OUTPUT);
-    pinMode(ECHO_PIN, INPUT);
+    analogWrite(RED_PIN, R);
+    analogWrite(GREEN_PIN, G);
+    analogWrite(BLUE_PIN, B);
 }
 
 /**
@@ -45,61 +36,78 @@ long distance()
     delayMicroseconds(2);
     
     // Receives the reflected signal
-    duration = pulseIn(ECHO_PIN, HIGH, PULSE_TIMEOUT);
+    int duration = pulseIn(ECHO_PIN, HIGH, PULSE_TIMEOUT);
     delay(25);
     
     // Returns calculated distance
     return duration / 58;
 }
 
-void setcolor(int R, int G, int B)
-{
-  analogWrite(RED_PIN, R);
-  analogWrite(GREEN_PIN, G);
-  analogWrite(BLUE_PIN, B);
-}
-
-void fast_beep()
-{
-        tone(BUZZER_PIN, 1000);
-        delay(50);
-        noTone(BUZZER_PIN);
-        delay(50);
-}
-
-void medium_beep()
-{
-        tone(BUZZER_PIN, 1000);
-        delay(100);
-        noTone(BUZZER_PIN);
-        delay(100);
-}
-
+/**
+ * This is the beep function for green light
+ */
 void slow_beep()
 {
-        tone(BUZZER_PIN, 1000);
-        delay(100);
-        noTone(BUZZER_PIN);
-        delay(1000);
+    setcolor(0, 255, 0);
+    tone(BUZZER_PIN, 1000);
+    delay(100);
+    noTone(BUZZER_PIN);
+    delay(1000);
+}
+
+/**
+ * This is the beep function for yellow light
+ */
+void medium_beep()
+{
+    setcolor(255, 255, 0);
+    tone(BUZZER_PIN, 1000);
+    delay(100);
+    noTone(BUZZER_PIN);
+    delay(100);
+}
+
+/**
+ * This is the beep function for red light
+ */
+void fast_beep()
+{
+    setcolor(255, 0, 0);
+    tone(BUZZER_PIN, 1000);
+    delay(50);
+    noTone(BUZZER_PIN);
+    delay(50);
+}
+
+/**
+ * This function is the entry point for the arduino program and it sets the
+ * modes for the pins of external components
+ */
+void setup()
+{
+    Serial.begin(19200);
+
+    pinMode(RED_PIN, OUTPUT);
+    pinMode(GREEN_PIN, OUTPUT);
+    pinMode(BLUE_PIN, OUTPUT);
+
+    pinMode(BUZZER_PIN, OUTPUT);
+    pinMode(TRIGGER_PIN, OUTPUT);
+    pinMode(ECHO_PIN, INPUT);
 }
 
 void loop()
-{ 
-  setcolor(0, 0, 0);
+{
+    setcolor(0, 0, 0); // no color
     int dist = distance();
 
-    if (dist <= BEEP_RANGE) {
-        if (dist > 18 && dist <= 33) {
-          setcolor(0, 255, 0);
-          slow_beep(); // green
-        }
-        else if (dist > 8 && dist <= 18) {
-          setcolor(255, 255, 0);
-          medium_beep(); // yellow
-        }
-        else if (dist <= 8) {
-          setcolor(255, 0, 0);
-          fast_beep(); // red
-        }
+    if (dist > 18 && dist <= 33) {
+        slow_beep();
+    }
+    else if (dist > 8 && dist <= 18) {
+        medium_beep();
+    }
+    else if (dist <= 8) {
+        fast_beep();
     }
 }
