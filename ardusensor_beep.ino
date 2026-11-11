@@ -99,7 +99,7 @@ void setup()
 void loop()
 {
     setcolor(0, 0, 0); // no color
-    int dist = distance();
+    long dist = distance();
 
     if (dist > 18 && dist <= 33) {
         slow_beep();
